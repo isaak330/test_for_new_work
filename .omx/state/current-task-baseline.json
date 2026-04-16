@@ -1,0 +1,12 @@
+{
+  "version": 1,
+  "tasks": [
+    {
+      "branch_name": "main",
+      "worktree_path": "/Users/ejorno/dev/test_for_new_work",
+      "status": "active",
+      "created_at": "2026-04-16T13:35:09.822Z",
+      "updated_at": "2026-04-16T13:48:47.480Z"
+    }
+  ]
+}

@@ -1,23 +1,24 @@
 import 'dart:convert';
 
-import '../../../core/network/json_http_client.dart';
+import 'package:dio/dio.dart';
+
 import '../domain/kanban_task.dart';
 import '../domain/server_message.dart';
 
 class BoardApi {
-  BoardApi({required JsonHttpClient client}) : _client = client;
+  BoardApi({required Dio dio}) : _dio = dio;
 
-  final JsonHttpClient _client;
+  final Dio _dio;
 
   Uri get _tasksUri => Uri.parse('/api/tasks');
   Uri get _moveUri => Uri.parse('/api/tasks/move');
 
   Future<BoardApiFetchResponse> fetchTasks() async {
-    final response = await _client.getJson(_tasksUri);
-    final json = _decodeBody(response.body);
+    final response = await _dio.getUri<String>(_tasksUri);
+    final json = _decodeBody(response.data ?? '');
 
     return BoardApiFetchResponse(
-      ok: response.statusCode >= 200 && response.statusCode < 300,
+      ok: (response.statusCode ?? 0) >= 200 && (response.statusCode ?? 0) < 300,
       status: json['status'] as String? ?? 'UNKNOWN',
       messages: _parseMessages(json['messages']),
       tasks: _parseTasks(json['data']),
@@ -29,15 +30,18 @@ class BoardApi {
     required int? parentId,
     required int order,
   }) async {
-    final response = await _client.postJson(_moveUri, {
-      'taskId': taskId,
-      'parentId': parentId,
-      'order': order,
-    });
-    final json = _decodeBody(response.body);
+    final response = await _dio.postUri<String>(
+      _moveUri,
+      data: {
+        'taskId': taskId,
+        'parentId': parentId,
+        'order': order,
+      },
+    );
+    final json = _decodeBody(response.data ?? '');
 
     return BoardApiMutationResponse(
-      ok: response.statusCode >= 200 && response.statusCode < 300,
+      ok: (response.statusCode ?? 0) >= 200 && (response.statusCode ?? 0) < 300,
       status: json['status'] as String? ?? 'UNKNOWN',
       messages: _parseMessages(json['messages']),
     );
